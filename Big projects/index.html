@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AG9 Premium | برنده مسابقه طراحی</title>
+    <style>
+        /* تعریف متغیرهای رنگی لوکس و مدرن */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --gold-primary: #d4af37;
+            --gold-dark: #aa7c11;
+            --gold-gradient: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa7c11 100%);
+            --text-main: #111111;
+            --text-muted: #555555;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- هدر شیشه‌ای و فوق مدرن --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        /* لوگوی خفن با المان طلایی تصویر شما */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            background: #111;
+            border: 2px solid var(--gold-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--gold-primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 15px;
+            position: relative;
+            padding: 5px 0;
+            transition: color 0.3s;
+        }
+
+        /* افکت خط زیر منوها هنگام هاور */
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold-gradient);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: var(--gold-dark);
+        }
+
+        /* دکمه لاگین پریمیوم */
+        .login-btn {
+            background: #111;
+            color: #fff;
+            border: 1px solid var(--gold-primary);
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-btn:hover {
+            background: var(--gold-gradient);
+            color: #111;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* --- بخش هیرو (خوش‌آمدگویی سحرآمیز) --- */
+        .hero {
+            margin-top: 80px;
+            padding: 120px 20px 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #111;
+            line-height: 1.3;
+        }
+
+        .hero h1 span {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 35px;
+            line-height: 1.8;
+        }
+
+        .cta-btn {
+            background: var(--gold-gradient);
+            color: #111;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+        }
+
+        /* --- بخش اصلی افتخارات (کادرهای سه بعدی و شیک) --- */
+        .honors-container {
+            max-width: 1200px;
+            margin: 40px auto 100px;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 50px;
+        }
+
+        .section-title span {
+            border-bottom: 3px solid var(--gold-primary);
+            padding-bottom: 8px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+        }
+
+        .premium-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* افکت زوم و تغییر رنگ کادر در هاور */
+        .premium-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--gold-primary);
+        }
+
+        .card-image-box {
+            width: 100%;
+            height: 220px;
+            background: #1e1e1e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* یک لایه نوری طلایی ملایم روی عکس */
+        .card-image-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+        }
+
+        .card-body {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-body h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .card-body p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        /* دکمه رید مور با انیمیشن حرکت فلش */
+        .read-more-link {
+            color: #111;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+
+        .read-more-link:hover {
+            color: var(--gold-dark);
+        }
+
+        .read-more-link span {
+            transition: transform 0.3s;
+        }
+
+        .read-more-link:hover span {
+            transform: translateX(-5px);
+            /* حرکت فلش در جهت RTL */
+        }
+
+        /* --- دایره راهنما فیکس شده و شناور (پایین راست) --- */
+        .fixed-help-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            background: #111;
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        /* افکت تپش (Pulse) برای جلب توجه کاربر */
+        .fixed-help-widget:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: var(--gold-gradient);
+            color: #111;
+            border-color: transparent;
+        }
+
+        /* واکنش‌گرایی برای موبایل */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+
+            /* در پروژه‌های بعدی منوی همبرگری اضافه می‌کنیم */
+            .hero h1 {
+                font-size: 38px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-logo">AG9</div>
+                <span>AG9</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">خانه</a></li>
+                    <li><a href="#">افتخارات</a></li>
+                    <li><a href="#">درباره ما</a></li>
+                    <li><a href="#">ساپورت</a></li>
+                </ul>
+            </nav>
+            <button class="login-btn">ورود / ثبت‌نام</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>پرواز بر فراز قله‌ها با <span>AG9</span></h1>
+        <p>به فضایی خوش آمدید که در آن جزئیات اصیل طلایی با مدرنیته روشن ادغام شده تا تجربه‌ای بی‌نقص و برنده خلق کند.
+        </p>
+        <button class="cta-btn">کشف بیشتر</button>
+    </section>
+
+    <main class="honors-container">
+        <h2 class="section-title"><span>تالار افتخارات</span></h2>
+
+        <div class="grid-layout">
+
+            <div class="premium-card">
+                <div class="card-image-box">
+                    [پوستر یا تصویر دست‌آورد ۱]
+                </div>
+                <div class="card-body">
+                    <h3>کسب رتبه نخست نوآوری</h3>
+                    <p>در این بخش خلاصه دست‌آورد خارق‌العاده اول شما با لحنی جذاب قرار می‌گیرد تا مخاطب تشنه خواندن
+                        جزئیات شود...</p>
+                    <a href="#" class="read-more-link">مطالعه کامل <span>←</span></a>
+                </div>
+            </div>
+
+            <div class="premium-card">
+                <div class="card-image-box">
+                    [پوستر یا تصویر دست‌آورد ۲]
+                </div>
+                <div class="card-body">
+                    <h3>تندیس برترین برند سال</h3>
+                    <p>معرفی افتخار دوم و خلاصه‌ای از مسیر منتهی به این موفقیت بزرگ که ارزش و اعتبار برند AG9 را نشان
+                        می‌دهد...</p>
+                    <a href="#" class="read-more-link">مطالعه کامل <span>←</span></a>
+                </div>
+            </div>
+
+            <div class="premium-card">
+                <div class="card-image-box">
+                    [پوستر یا تصویر دست‌آورد ۳]
+                </div>
+                <div class="card-body">
+                    <h3>رکورد جهانی در توسعه</h3>
+                    <p>یک موفقیت چشمگیر دیگر که لایق یک کادر شیک و خلاصه داستانی جذاب برای میخکوب کردن مخاطبان است...
+                    </p>
+                    <a href="#" class="read-more-link">مطالعه کامل <span>←</span></a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div class="fixed-help-widget" title="مرکز راهنمایی و پشتیبانی AG9">؟</div>
+
+</body>
+
+</html>

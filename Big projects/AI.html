@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Bank AI — Click to Chat</title>
+<style>
+  :root{
+    --bg: #0F1220;
+    --panel: #171B2E;
+    --panel-2: #1E2338;
+    --border: rgba(255,255,255,.08);
+    --text: #EDEFF7;
+    --muted: #9599B3;
+    --accent: #7C9CFF;
+    --accent-2: #56E0C4;
+    --user-bubble: #7C9CFF;
+    --ai-bubble: #232842;
+    --danger: #FF6F91;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display:flex;
+    flex-direction:column;
+  }
+
+  header{
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--panel), var(--bg));
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size: 19px;
+    font-weight:700;
+    letter-spacing: .01em;
+  }
+  header p{
+    margin:0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height:1.5;
+  }
+
+  .layout{
+    flex:1;
+    display:flex;
+    flex-direction: column;
+    min-height:0;
+  }
+
+  /* Chat area */
+  .chat{
+    flex:1;
+    min-height: 0;
+    overflow-y:auto;
+    padding: 18px 16px 10px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+  .bubble{
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height:1.5;
+    animation: rise .25s ease;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .bubble.user{
+    align-self:flex-end;
+    background: var(--user-bubble);
+    color: #0F1220;
+    border-bottom-right-radius: 4px;
+    font-weight:500;
+  }
+  .bubble.ai{
+    align-self:flex-start;
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble.ai .tag{
+    display:block;
+    font-size: 10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color: var(--accent-2);
+    margin-bottom: 4px;
+    font-weight:700;
+  }
+  .typing{
+    align-self:flex-start;
+    display:flex;
+    gap:4px;
+    padding: 12px 16px;
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-radius:16px;
+    border-bottom-left-radius:4px;
+  }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--muted);
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2){ animation-delay:.15s; }
+  .typing span:nth-child(3){ animation-delay:.3s; }
+  @keyframes bounce{
+    0%,60%,100%{ transform: translateY(0); opacity:.4; }
+    30%{ transform: translateY(-4px); opacity:1; }
+  }
+
+  /* Compose bar */
+  .compose-wrap{
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    padding: 12px 16px;
+  }
+  .compose-box{
+    display:flex;
+    align-items:flex-end;
+    gap: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 10px 10px 14px;
+    min-height: 46px;
+  }
+  .compose-text{
+    flex:1;
+    min-height: 22px;
+    max-height: 90px;
+    overflow-y:auto;
+    color: var(--text);
+    font-size: 14.5px;
+    line-height:1.5;
+    outline:none;
+  }
+  .compose-text:empty::before{
+    content: attr(data-placeholder);
+    color: var(--muted);
+  }
+  .btn{
+    border:none;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn-send{
+    background: var(--accent);
+    color: #0F1220;
+  }
+  .btn-send:disabled{
+    opacity:.4;
+    cursor:default;
+  }
+  .btn-clear{
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .compose-actions{
+    display:flex;
+    gap:6px;
+  }
+
+  /* Word bank */
+  .bank{
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    height: 34vh;
+    min-height: 240px;
+    flex-shrink: 0;
+    display:flex;
+    flex-direction:column;
+  }
+  .bank-tabs{
+    display:flex;
+    gap: 6px;
+    padding: 10px 12px 0;
+    overflow-x:auto;
+    flex-shrink:0;
+  }
+  .tab{
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    white-space:nowrap;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .tab.active{
+    color: #0F1220;
+    background: var(--accent-2);
+    border-color: transparent;
+    font-weight:600;
+  }
+  .bank-words{
+    flex:1;
+    min-height: 0;
+    overflow-y:auto;
+    padding: 12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    align-content:flex-start;
+  }
+  .chip{
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13.5px;
+    cursor:pointer;
+    transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    user-select:none;
+  }
+  .chip:hover{
+    background: var(--panel-2);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .chip:active{
+    transform: translateY(0) scale(.96);
+  }
+
+  .footer-note{
+    text-align:center;
+    font-size: 10.5px;
+    color: var(--muted);
+    padding: 6px 0 10px;
+    opacity:.7;
+  }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background: var(--panel-2); border-radius:8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💬 Word Bank AI</h1>
+  <p>Tap words below to build a sentence, then hit Send. No typing required — the AI replies based on pattern matching, all running locally in this page.</p>
+</header>
+
+<div class="layout">
+  <div class="chat" id="chat"></div>
+
+  <div class="compose-wrap">
+    <div class="compose-box">
+      <div class="compose-text" id="composeText" contenteditable="true" data-placeholder="Tap words below, or type here..."></div>
+      <div class="compose-actions">
+        <button class="btn btn-clear" id="clearBtn">Clear</button>
+        <button class="btn btn-send" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bank">
+    <div class="bank-tabs" id="bankTabs"></div>
+    <div class="bank-words" id="bankWords"></div>
+  </div>
+</div>
+
+<div class="footer-note">Rule-based conversational AI · runs 100% offline · no data leaves this page</div>
+
+<script>
+/* =========================================================
+   WORD BANK — organized by category, ~230 clickable entries
+   ========================================================= */
+const WORD_BANK = {
+  "Greetings": [
+    "Hello", "Hi there", "Good morning", "Good evening", "Hey", "How are you",
+    "Nice to meet you", "What's up", "Good night", "See you later", "Goodbye",
+    "Thanks", "Thank you very much", "You're welcome", "Please", "Sorry",
+    "No problem", "Take care"
+  ],
+  "Feelings": [
+    "I feel happy", "I feel sad", "I feel tired", "I feel excited", "I feel nervous",
+    "I feel bored", "I feel confused", "I feel proud", "I feel stressed", "I feel calm",
+    "I feel curious", "I feel lonely", "I feel grateful", "I feel frustrated",
+    "I feel motivated", "I feel relaxed", "today", "this week", "right now",
+    "because of work", "because of school", "for no reason"
+  ],
+  "About Me": [
+    "My name is", "I am a student", "I am a developer", "I work in design",
+    "I live in Iran", "I am learning AI", "I like coding", "I like music",
+    "I like movies", "I like reading", "I have a project", "I am building something",
+    "I am new to this", "I have been coding for a year", "I want to learn more",
+    "I am tired today", "I just woke up", "I stayed up late"
+  ],
+  "Questions": [
+    "What is AI", "How does this work", "Why did you say that", "Can you help me",
+    "What do you think", "Do you understand", "What should I do", "How are you feeling",
+    "What is your name", "Are you real", "Can you learn", "What is machine learning",
+    "How do I start a project", "What is the best programming language",
+    "Why is this hard", "When will I finish", "Where should I begin",
+    "Who created you", "What can you do"
+  ],
+  "Topics": [
+    "the weather", "artificial intelligence", "programming", "my birthday",
+    "my project", "school", "my job", "the future", "robots", "space",
+    "video games", "movies", "music", "food", "travel", "sports", "books",
+    "the internet", "my family", "my friends", "python", "javascript",
+    "machine learning", "data science", "my laptop", "the weekend"
+  ],
+  "Connectors": [
+    "and", "but", "because", "so", "also", "however", "actually", "honestly",
+    "by the way", "anyway", "for example", "in other words", "especially",
+    "sometimes", "usually", "never", "always", "maybe", "probably", "definitely"
+  ],
+  "Reactions": [
+    "That's great", "That's interesting", "I agree", "I disagree", "Really?",
+    "No way", "That makes sense", "I'm not sure", "Exactly", "Good point",
+    "I didn't know that", "That's funny", "Wow", "Cool", "Amazing", "Okay",
+    "I see", "Makes sense", "Fair enough", "Absolutely"
+  ],
+  "Wrap Up": [
+    "Tell me more", "Let's talk about something else", "I have a question",
+    "Can you explain that", "That's all for now", "Thanks for listening",
+    "This was helpful", "I need to go", "Talk to you later", "One more thing",
+    "Let's continue", "I'm done for now", "What else can we talk about"
+  ]
+};
+
+/* =========================================================
+   RESPONSE ENGINE — keyword/pattern based, ELIZA-style
+   Each rule: pattern (regex) + array of possible responses
+   (a random one is picked so replies don't feel repetitive)
+   ========================================================= */
+const RULES = [
+  { pattern: /\b(hello|hi there|hey|good morning|good evening)\b/i,
+    tag: "greeting",
+    responses: [
+      "Hey! Good to see you here. What's on your mind?",
+      "Hello! I'm ready whenever you are — pick a few words and let's talk.",
+      "Hi there! What would you like to chat about?"
+    ]
+  },
+  { pattern: /\b(how are you)\b/i,
+    tag: "small talk",
+    responses: [
+      "I'm just a set of pattern-matching rules, so I'm always 'fine' — but thanks for asking! How about you?",
+      "Running smoothly on your device, no internet needed. How are YOU doing though?"
+    ]
+  },
+  { pattern: /\bmy name is\b/i,
+    tag: "introduction",
+    responses: [
+      "Nice to meet you! I'll remember that for this conversation.",
+      "Great, thanks for telling me. Now, what would you like to talk about?"
+    ]
+  },
+  { pattern: /\bi feel (happy|excited|proud|grateful|motivated|calm|relaxed)\b/i,
+    tag: "positive feeling",
+    responses: [
+      "That's really good to hear! What's contributing to that feeling?",
+      "Nice — it's worth noticing when things feel good. Want to tell me more?"
+    ]
+  },
+  { pattern: /\bi feel (sad|tired|nervous|bored|confused|stressed|lonely|frustrated)\b/i,
+    tag: "difficult feeling",
+    responses: [
+      "That sounds tough. Do you want to talk about what's behind that?",
+      "I hear you. Sometimes just naming the feeling helps a bit — what's going on?",
+      "Thanks for sharing that. Is there something specific causing it?"
+    ]
+  },
+  { pattern: /\bwhat is ai\b/i,
+    tag: "AI explainer",
+    responses: [
+      "AI is a broad field where computers perform tasks that normally need human intelligence — like recognizing patterns, understanding language, or making decisions. This chatbot, for example, uses simple pattern matching, not a giant neural network!",
+      "Good question. AI ranges from simple rule-based systems (like me!) to huge neural networks trained on massive datasets. Same goal — different levels of complexity."
+    ]
+  },
+  { pattern: /\bhow does this work\b/i,
+    tag: "how it works",
+    responses: [
+      "It's simpler than it might look: your message gets checked against a list of patterns (keywords and phrases). Whichever pattern matches picks a response. No internet, no external model — just JavaScript running in your browser.",
+      "Under the hood, this is a rule-based system: if your sentence contains certain words, a matching response is chosen at random from a few options. It's a classic early style of AI, similar to the 1966 ELIZA chatbot."
+    ]
+  },
+  { pattern: /\bmachine learning\b/i,
+    tag: "ML explainer",
+    responses: [
+      "Machine learning is a subset of AI where a model learns patterns from data instead of being explicitly programmed with rules — unlike me, who's 100% hand-written rules!",
+      "ML systems improve by seeing lots of examples. Think of the digit recognizer or sentiment analyzer projects you built earlier — those actually learned from data."
+    ]
+  },
+  { pattern: /\b(are you real|can you learn|who created you)\b/i,
+    tag: "self-reference",
+    responses: [
+      "I'm not learning anything right now — I'm a fixed set of pattern-matching rules written in JavaScript, all sitting in this one HTML file.",
+      "I was built as a demo project — no training, no memory beyond this page, just clever(ish) pattern matching."
+    ]
+  },
+  { pattern: /\b(project|building something|my project)\b/i,
+    tag: "project talk",
+    responses: [
+      "Tell me more about it — what are you trying to build?",
+      "Nice, I like hearing about projects. What stage is it at?"
+    ]
+  },
+  { pattern: /\b(python|javascript|programming|coding|developer)\b/i,
+    tag: "coding talk",
+    responses: [
+      "Coding is a great skill to build — are you working on anything specific right now?",
+      "Which language are you focusing on these days?"
+    ]
+  },
+  { pattern: /\b(weather)\b/i,
+    tag: "weather",
+    responses: [
+      "I can't check the weather myself since I'm fully offline, but I hope it's nice where you are!",
+      "No sensors or internet access here, so I can't say — but feel free to tell me!"
+    ]
+  },
+  { pattern: /\b(thank you|thanks)\b/i,
+    tag: "gratitude",
+    responses: [
+      "You're welcome! Happy to chat.",
+      "Anytime! What else is on your mind?"
+    ]
+  },
+  { pattern: /\b(goodbye|see you later|i need to go|talk to you later)\b/i,
+    tag: "farewell",
+    responses: [
+      "Take care! This conversation will still be here if you come back.",
+      "Goodbye for now — it was fun chatting."
+    ]
+  },
+  { pattern: /\?$/,
+    tag: "generic question",
+    responses: [
+      "That's a good question. What's your own guess?",
+      "Interesting — what makes you ask that?",
+      "Let's think about it together — what do you already know?"
+    ]
+  },
+];
+
+const FALLBACKS = [
+  "Interesting — tell me more about that.",
+  "I hear you. What else is on your mind?",
+  "Got it. Want to add anything to that?",
+  "That's worth exploring further — go on.",
+  "I'm listening. What's the bigger picture here?",
+  "Noted! Feel free to pick more words below to continue."
+];
+
+/* =========================================================
+   APP LOGIC
+   ========================================================= */
+const chatEl = document.getElementById('chat');
+const composeText = document.getElementById('composeText');
+const sendBtn = document.getElementById('sendBtn');
+const clearBtn = document.getElementById('clearBtn');
+const bankTabs = document.getElementById('bankTabs');
+const bankWords = document.getElementById('bankWords');
+
+let currentCategory = Object.keys(WORD_BANK)[0];
+
+function renderTabs(){
+  bankTabs.innerHTML = '';
+  Object.keys(WORD_BANK).forEach(category => {
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (category === currentCategory ? ' active' : '');
+    tab.textContent = category;
+    tab.addEventListener('click', () => {
+      currentCategory = category;
+      renderTabs();
+      renderWords();
+    });
+    bankTabs.appendChild(tab);
+  });
+}
+
+function renderWords(){
+  bankWords.innerHTML = '';
+  WORD_BANK[currentCategory].forEach(word => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = word;
+    chip.addEventListener('click', () => insertWord(word));
+    bankWords.appendChild(chip);
+  });
+}
+
+function insertWord(word){
+  const current = composeText.textContent;
+  const needsSpace = current.length > 0 && !current.endsWith(' ');
+  composeText.textContent = current + (needsSpace ? ' ' : '') + word + ' ';
+  placeCursorAtEnd(composeText);
+  composeText.focus();
+  updateSendState();
+}
+
+function placeCursorAtEnd(el){
+  const range = document.createRange();
+  const sel = window.getSelection();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function updateSendState(){
+  const hasText = composeText.textContent.trim().length > 0;
+  sendBtn.disabled = !hasText;
+}
+
+function addBubble(text, sender, tag){
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + sender;
+  if(sender === 'ai' && tag){
+    const tagEl = document.createElement('span');
+    tagEl.className = 'tag';
+    tagEl.textContent = tag;
+    bubble.appendChild(tagEl);
+  }
+  const body = document.createElement('span');
+  body.textContent = text;
+  bubble.appendChild(body);
+  chatEl.appendChild(bubble);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function showTyping(){
+  const typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.id = 'typingIndicator';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  chatEl.appendChild(typing);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function hideTyping(){
+  const typing = document.getElementById('typingIndicator');
+  if(typing) typing.remove();
+}
+
+function generateResponse(userText){
+  for(const rule of RULES){
+    if(rule.pattern.test(userText)){
+      const options = rule.responses;
+      return { text: options[Math.floor(Math.random() * options.length)], tag: rule.tag };
+    }
+  }
+  return { text: FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)], tag: "general" };
+}
+
+function sendMessage(){
+  const text = composeText.textContent.trim();
+  if(!text) return;
+
+  addBubble(text, 'user');
+  composeText.textContent = '';
+  updateSendState();
+
+  showTyping();
+  const delay = 500 + Math.random() * 500;
+  setTimeout(() => {
+    hideTyping();
+    const { text: reply, tag } = generateResponse(text);
+    addBubble(reply, 'ai', tag);
+  }, delay);
+}
+
+sendBtn.addEventListener('click', sendMessage);
+clearBtn.addEventListener('click', () => {
+  composeText.textContent = '';
+  updateSendState();
+  composeText.focus();
+});
+composeText.addEventListener('input', updateSendState);
+composeText.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* Initial setup */
+renderTabs();
+renderWords();
+updateSendState();
+addBubble("Hi! Tap words from the bank below to build a message, then hit Send. Try starting with a greeting 👋", 'ai', 'welcome');
+</script>
+
+</body>
+</html>
